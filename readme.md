@@ -10,13 +10,17 @@ https://github.com/blizzard/s2client-proto#map-packs<br>
 Create Maps folder in your Starcraft II directory then unzip it there (keep in folder packs)
 
 
-## Bots:
+## Bots - Protoss:
 
 ### basic_protoss.py
 Good against easy and medium computer
 
 ### advanced_protoss.py
 Against hard CPU
+
+
+## Bots - Terran:
+
 
 
 
