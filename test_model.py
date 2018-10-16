@@ -6,16 +6,21 @@ import random
 import cv2
 import numpy as np
 import time
+import keras
 
 
 HEADLESS = True
 
 class Apollyon(sc2.BotAI):
-	def __init__(self):
-		self.ITERATIONS_PER_MINUTE = 170
+	def __init__(self, use_model=False):
+		# self.ITERATIONS_PER_MINUTE = 170
 		self.MAX_WORKERS = 40
 		self.do_something_after = 0
 		self.train_data = []
+		self.use_model = use_model
+		if self.use_model:
+			print("load model")
+			self.model = keras.models.load_model("BasicCNN-10-epochs-0.0001-LR-STAGE1")
 
 
 	def on_end(self, game_result):
@@ -26,8 +31,9 @@ class Apollyon(sc2.BotAI):
 		if game_result == Result.Victory:
 			np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
 
-	async def on_step(self, iteration):
-		self.iteration = iteration
+	async def on_step(self, time):
+		# self.iteration = iteration
+		self.time = (self.state.game_loop/22.4) / 60
 		await self.scout()
 		await self.distribute_workers()
 		await self.build_workers()
@@ -197,7 +203,7 @@ class Apollyon(sc2.BotAI):
 
 
 	async def expand(self):
-		if self.units(NEXUS).amount < (self.iteration / self.ITERATIONS_PER_MINUTE) and self.can_afford(NEXUS):     ## add new bases
+		if self.units(NEXUS).amount < self.time/2 and self.can_afford(NEXUS):     ## add new bases
 			await self.expand_now()
 
 	async def build_barracks(self):
@@ -218,7 +224,7 @@ class Apollyon(sc2.BotAI):
 						await self.build(ROBOTICSFACILITY, near=pylon)					
 
 			if self.units(CYBERNETICSCORE).ready.exists:		## if gateway already exists and there is no cybercore
-				if len(self.units(STARGATE)) < (self.iteration /self.ITERATIONS_PER_MINUTE):
+				if len(self.units(STARGATE)) < self.time/2:
 					if self.can_afford(STARGATE) and not self.already_pending(STARGATE):	
 						await self.build(STARGATE, near=pylon)		## build cybercore
 
@@ -243,19 +249,34 @@ class Apollyon(sc2.BotAI):
 		else:
 			return self.enemy_start_locations[0]				## ... otherwise go to enemy start location		
 
-	async def attack(self):
-		if len(self.units(VOIDRAY).idle) > 0:
-			choice = random.randrange(0, 4)                     ## random choice between 4 attack methods
-			target = False
+    async def attack(self):
+
+        if len(self.units(VOIDRAY).idle) > 0:
+
+            target = False
+            if self.time > self.do_something_after:
+                if self.use_model:
+                    prediction = self.model.predict([self.flipped.reshape([-1, 176, 200, 3])])
+                    choice = np.argmax(prediction[0])
+                    #print('prediction: ',choice)
+
+                    choice_dict = {0: "No Attack!",
+                                   1: "Attack close to our nexus!",
+                                   2: "Attack Enemy Structure!",
+                                   3: "Attack Eneemy Start!"}
+
+                    print("Choice #{}:{}".format(choice, choice_dict[choice]))
+
+                else:
+                    choice = random.randrange(0, 4)
 
 
 			## learn to not attack when low on units
-
-			if self.iteration > self.do_something_after:        
+     
 				if choice == 0:
 					# no attack
-					wait = random.randrange(20, 165)
-					self.do_something_after = self.iteration + wait
+					wait = random.randrange(7, 100) / 100
+					self.do_something_after = self.time + wait
 
 			## learn to attack close enemy			
 
@@ -295,6 +316,6 @@ class Apollyon(sc2.BotAI):
 
 
 run_game(maps.get("AbyssalReefLE"),[
-	Bot(Race.Protoss, Apollyon()),
+	Bot(Race.Protoss, Apollyon(use_model=True)),
 	Computer(Race.Terran, Difficulty.Easy)],
 	realtime=False)		
