@@ -21,9 +21,8 @@ Good against easy and medium computer
 Against hard CPU
 
 ### deep_protoss.py
+Keras Neural Network application
 
-
-## Bots - Terran:
 
 
 
