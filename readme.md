@@ -12,16 +12,6 @@ Create Maps folder in your Starcraft II directory then unzip it there (keep in f
 4. Run Command:   python starcraft.py
 
 
-## Bots - Protoss:
-
-### basic_protoss.py
-Good against easy and medium computer
-
-### advanced_protoss.py
-Against hard CPU
-
-### deep_protoss.py
-Keras Neural Network application
 
 
 
