@@ -13,7 +13,7 @@ Create Maps folder in your Starcraft II directory then unzip it there (keep in f
 
 
 ## Bot Description
-
+*fixing army composition
 
 
 
