@@ -12,6 +12,10 @@ Create Maps folder in your Starcraft II directory then unzip it there (keep in f
 4. Run Command:   python starcraft.py
 
 
+## Bot Description
+
+
+
 
 
 
