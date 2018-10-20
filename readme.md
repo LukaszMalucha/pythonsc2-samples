@@ -1,6 +1,7 @@
 ## STARCRAFT II & DEEPMIND
 
 
+*new concept 
 
 ## A.I. Overview
 
@@ -9,6 +10,7 @@
 ### Decision making process with Keras
 
 ### Issues & Problems
+
 
 
 
